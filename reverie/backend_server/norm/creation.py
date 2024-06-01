@@ -4,6 +4,7 @@ import sys
 sys.path.append('../')
 from utils import *
 from norm.normDatabase import *
+import cohere
 
 # openai.api_key = OPENAI_KEY
 openai.api_key = openai_api_key
@@ -40,11 +41,22 @@ class Creation:
         agent_prompt = {"role": "user", "content": agent_description}
         self.msg.append(agent_prompt)
 
-        gpt_ret = openai.ChatCompletion.create(model=self.model, messages=self.msg, temperature=self.temp,
-                                               max_tokens=self.max_tokens, top_p=self.top_p,
-                                               frequency_penalty=self.frequency_penalty,
-                                               presence_penalty=self.presence_penalty)
-        ret_str = json.dumps(gpt_ret["choices"][0]["message"])
+        # gpt_ret = openai.ChatCompletion.create(model=self.model, messages=self.msg, temperature=self.temp,
+        #                                        max_tokens=self.max_tokens, top_p=self.top_p,
+        #                                        frequency_penalty=self.frequency_penalty,
+        #                                        presence_penalty=self.presence_penalty)
+        # ret_str = json.dumps(gpt_ret["choices"][0]["message"])
+        cohere_api_key = "zAFbZpmF67ioolqI353o6MJ5KTlFPgh4j2dWhRvN"
+        co = cohere.Client(cohere_api_key)
+        response = co.chat(
+            chat_history=[{"role": "USER", "message": prompt}],
+            message=agent_description,
+            connectors=[{"id": "web-search"}]
+        )
+        ret_str = json.dumps({
+            "role": "assistant",
+            "content": response.text
+        })
         ret_dict = json.loads(ret_str)
         # print(ret_dict["content"])
         return ret_dict["content"]
