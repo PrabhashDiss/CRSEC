@@ -46,7 +46,7 @@ class Creation:
         #                                        frequency_penalty=self.frequency_penalty,
         #                                        presence_penalty=self.presence_penalty)
         # ret_str = json.dumps(gpt_ret["choices"][0]["message"])
-        cohere_api_key = "zAFbZpmF67ioolqI353o6MJ5KTlFPgh4j2dWhRvN"
+        cohere_api_key = "<COHERE_API_KEY>"
         co = cohere.Client(cohere_api_key)
         response = co.chat(
             chat_history=[{"role": "USER", "message": prompt}],
