@@ -8,6 +8,9 @@ import json
 import random
 import openai
 import time 
+import cohere
+import ollama
+from groq import Groq
 
 from utils import *
 
@@ -19,11 +22,31 @@ def temp_sleep(seconds=0.1):
 def ChatGPT_single_request(prompt): 
   temp_sleep()
 
-  completion = openai.ChatCompletion.create(
-    model="gpt-3.5-turbo", 
-    messages=[{"role": "user", "content": prompt}]
+  # completion = openai.ChatCompletion.create(
+  #   model="gpt-3.5-turbo", 
+  #   messages=[{"role": "user", "content": prompt}]
+  # )
+  # return completion["choices"][0]["message"]["content"]
+  # response = ollama.chat(model='llama3', messages=[
+  #   {
+  #     'role': 'user',
+  #     'content': prompt,
+  #   },
+  # ])
+  # return response['message']['content']
+  client = Groq(
+    api_key="GROQ_API_KEY",
   )
-  return completion["choices"][0]["message"]["content"]
+  chat_completion = client.chat.completions.create(
+    messages=[
+      {
+        "role": "user",
+        "content": prompt,
+      }
+    ],
+    model="llama3-70b-8192",
+  )
+  return chat_completion.choices[0].message.content
 
 
 # ============================================================================
@@ -45,11 +68,31 @@ def GPT4_request(prompt):
   temp_sleep()
 
   try: 
-    completion = openai.ChatCompletion.create(
-    model="gpt-4-1106-preview", 
-    messages=[{"role": "user", "content": prompt}]
+    # completion = openai.ChatCompletion.create(
+    # model="gpt-4-1106-preview", 
+    # messages=[{"role": "user", "content": prompt}]
+    # )
+    # return completion["choices"][0]["message"]["content"]
+    # response = ollama.chat(model='llama3', messages=[
+    #   {
+    #     'role': 'user',
+    #     'content': prompt,
+    #   },
+    # ])
+    # return response['message']['content']
+    client = Groq(
+      api_key="GROQ_API_KEY",
     )
-    return completion["choices"][0]["message"]["content"]
+    chat_completion = client.chat.completions.create(
+      messages=[
+        {
+          "role": "user",
+          "content": prompt,
+        }
+      ],
+      model="llama3-70b-8192",
+    )
+    return chat_completion.choices[0].message.content
   
   except: 
     print ("ChatGPT ERROR")
@@ -70,12 +113,34 @@ def ChatGPT_request(prompt):
   """
   temp_sleep()
   try: 
-    completion = openai.ChatCompletion.create(
-    model="gpt-3.5-turbo", 
-    messages=[{"role": "user", "content": prompt}]
+    # completion = openai.ChatCompletion.create(
+    # model="gpt-3.5-turbo", 
+    # messages=[{"role": "user", "content": prompt}]
+    # )
+    # print(completion)
+    # return completion["choices"][0]["message"]["content"]
+    # response = ollama.chat(model='llama3', messages=[
+    #   {
+    #     'role': 'user',
+    #     'content': prompt,
+    #   },
+    # ])
+    # print(response)
+    # return response['message']['content']
+    client = Groq(
+      api_key="GROQ_API_KEY",
     )
-    print(completion)
-    return completion["choices"][0]["message"]["content"]
+    chat_completion = client.chat.completions.create(
+      messages=[
+        {
+          "role": "user",
+          "content": prompt,
+        }
+      ],
+      model="llama3-70b-8192",
+    )
+    print(chat_completion)
+    return chat_completion.choices[0].message.content
   
   except: 
     print ("ChatGPT ERROR")
@@ -279,8 +344,14 @@ def get_embedding(text, model="text-embedding-ada-002"):
   temp_sleep()
   if not text: 
     text = "this is blank"
-  return openai.Embedding.create(
-          input=[text], model=model)['data'][0]['embedding']
+  # return openai.Embedding.create(
+  #         input=[text], model=model)['data'][0]['embedding']
+  cohere_api_key = "<COHERE_API_KEY>"
+  co = cohere.Client(cohere_api_key)
+  response = co.embed(
+    texts=[text], model="embed-english-v3.0", input_type="classification"
+  )
+  return response.embeddings[0]
 
 
 if __name__ == '__main__':
@@ -352,12 +423,32 @@ def GPT4_request_t1(prompt):
     """
 
     try:
-        completion = openai.ChatCompletion.create(
-            model="gpt-4-1106-preview",
-            messages=[{"role": "user", "content": prompt}],
-            temperature=1
+        # completion = openai.ChatCompletion.create(
+        #     model="gpt-4-1106-preview",
+        #     messages=[{"role": "user", "content": prompt}],
+        #     temperature=1
+        # )
+        # return completion["choices"][0]["message"]["content"]
+        # response = ollama.chat(model='llama3', messages=[
+        #     {
+        #         'role': 'user',
+        #         'content': prompt,
+        #     },
+        # ])
+        # return response['message']['content']
+        client = Groq(
+            api_key="GROQ_API_KEY",
         )
-        return completion["choices"][0]["message"]["content"]
+        chat_completion = client.chat.completions.create(
+            messages=[
+                {
+                    "role": "user",
+                    "content": prompt,
+                }
+            ],
+            model="llama3-70b-8192",
+        )
+        return chat_completion.choices[0].message.content
 
     except:
         print("ChatGPT ERROR")
@@ -402,14 +493,36 @@ def ChatGPT_request_t0(prompt):
     """
     # temp_sleep()
     try:
-        completion = openai.ChatCompletion.create(
-            # model="gpt-3.5-turbo",
-            model="gpt-3.5-turbo",
-            messages=[{"role": "user", "content": prompt}],
-            temperature=0
+        # completion = openai.ChatCompletion.create(
+        #     # model="gpt-3.5-turbo",
+        #     model="gpt-3.5-turbo",
+        #     messages=[{"role": "user", "content": prompt}],
+        #     temperature=0
+        # )
+        # print(completion)
+        # return completion["choices"][0]["message"]["content"]
+        # response = ollama.chat(model='llama3', messages=[
+        #     {
+        #         'role': 'user',
+        #         'content': prompt,
+        #     },
+        # ])
+        # print(response)
+        # return response['message']['content']
+        client = Groq(
+            api_key="GROQ_API_KEY",
         )
-        print(completion)
-        return completion["choices"][0]["message"]["content"]
+        chat_completion = client.chat.completions.create(
+            messages=[
+                {
+                    "role": "user",
+                    "content": prompt,
+                }
+            ],
+            model="llama3-70b-8192",
+        )
+        print(chat_completion)
+        return chat_completion.choices[0].message.content
 
     except:
         print("ChatGPT ERROR")

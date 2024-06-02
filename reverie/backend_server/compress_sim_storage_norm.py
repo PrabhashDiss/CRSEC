@@ -5,6 +5,8 @@ import json
 from utils import *
 from global_methods import *
 import openai
+import ollama
+from groq import Groq
 
 openai.api_key = openai_api_key
 
@@ -39,13 +41,35 @@ def ChatGPT_request(prompt):
     """
     # temp_sleep()
     try:
-        completion = openai.ChatCompletion.create(
-            # model="gpt-3.5-turbo",
-            model="gpt-3.5-turbo",
-            messages=[{"role": "user", "content": prompt}]
+        # completion = openai.ChatCompletion.create(
+        #     # model="gpt-3.5-turbo",
+        #     model="gpt-3.5-turbo",
+        #     messages=[{"role": "user", "content": prompt}]
+        # )
+        # print(completion)
+        # return completion["choices"][0]["message"]["content"]
+        # response = ollama.chat(model='llama3', messages=[
+        #   {
+        #     'role': 'user',
+        #     'content': prompt,
+        #   },
+        # ])
+        # print(response)
+        # return response['message']['content']
+        client = Groq(
+          api_key="GROQ_API_KEY",
         )
-        print(completion)
-        return completion["choices"][0]["message"]["content"]
+        chat_completion = client.chat.completions.create(
+          messages=[
+            {
+              "role": "user",
+              "content": prompt,
+            }
+          ],
+          model="llama3-70b-8192",
+        )
+        print(chat_completion)
+        return chat_completion.choices[0].message.content
 
     except:
         print("ChatGPT ERROR")
